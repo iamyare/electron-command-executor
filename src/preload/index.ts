@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
@@ -20,3 +20,8 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
 }
+
+contextBridge.exposeInMainWorld('electron', {
+  sendCommand: (command) => ipcRenderer.send('execute-command', command),
+  onCommandResult: (callback) => ipcRenderer.on('command-result', callback)
+})

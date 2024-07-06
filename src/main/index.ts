@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-
 import { supabase } from './supabase'
 import { exec } from 'child_process'
 
@@ -65,17 +64,13 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  // Escuchar eventos de Supabase
   const userId = 'f19615b5-82cf-4b41-a8c1-d8f4b284bdb7' // Reemplaza con el ID del usuario actual
   supabase
     .channel('command-channel')
     .on(
       'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'command_history',
-        filter: `user_id=eq.${userId}`
-      },
+      { event: 'INSERT', schema: 'public', table: 'command_history', filter: `user_id=${userId}` },
       async (payload) => {
         const commandId = payload.new.command_id
         const { data: commandData, error } = await supabase
