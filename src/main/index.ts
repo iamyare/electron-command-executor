@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { supabase } from './supabase'
 import { exec } from 'child_process'
+import { createDevice, encrypt, findDevice, getDeviceNameLocal, getMAC } from './actions'
 
 let mainWindow: BrowserWindow
 
@@ -117,7 +118,7 @@ supabase
 
         await supabase
           .from('command_history')
-          .update({ status, output, updated_at: new Date() })
+          .update({ status, output, updated_at: new Date().toISOString() })
           .eq('id', payload.new.id)
 
         mainWindow.webContents.send(
@@ -128,3 +129,32 @@ supabase
     }
   )
   .subscribe()
+
+//Obtener direccion MAC de la computadora
+const MAC = getMAC()
+const ENCRYPT_MAC = encrypt({ text: MAC, secret: userId, action: 'encrypt' })
+const DEVICE_NAME_LOCAL = getDeviceNameLocal()
+const OS = process.platform
+
+// const encriptar = encrypt({ text: getMAC(), secret: 'secret', action: 'encrypt' })
+// console.log(encrypt({ text: encriptar, secret: 'secret', action: 'decrypt' }))
+
+async function hola() {
+  const { data: dataDevice, error: errorDevice } = await findDevice({ mac: ENCRYPT_MAC })
+  if (errorDevice) {
+    const { data: deviceCreator, error: errorCreateDevice } = await createDevice({
+      mac: ENCRYPT_MAC,
+      name: DEVICE_NAME_LOCAL,
+      os: OS,
+      user_id: userId
+    })
+    if (errorCreateDevice) {
+      console.error('Error creating device:', errorCreateDevice)
+      return
+    }
+    console.log(`Device created: ${JSON.stringify(deviceCreator)}`)
+  }
+  console.log(`Device found: ${JSON.stringify(dataDevice)}`)
+}
+
+console.log(hola())
