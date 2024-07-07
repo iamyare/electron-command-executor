@@ -63,53 +63,6 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
-
-  // Escuchar eventos de Supabase
-  const userId = 'f19615b5-82cf-4b41-a8c1-d8f4b284bdb7' // Reemplaza con el ID del usuario actual
-  supabase
-    .channel('command-channel')
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'command_history', filter: `user_id=${userId}` },
-      async (payload) => {
-        const commandId = payload.new.command_id
-        const { data: commandData, error } = await supabase
-          .from('commands')
-          .select('command')
-          .eq('id', commandId)
-          .single()
-
-        if (error) {
-          console.error('Error fetching command:', error)
-          return
-        }
-
-        const command = commandData.command
-        exec(command, async (error, stdout, stderr) => {
-          let status = 'completed'
-          let output = stdout
-
-          if (error) {
-            status = 'error'
-            output = error.message
-          } else if (stderr) {
-            status = 'stderr'
-            output = stderr
-          }
-
-          await supabase
-            .from('command_history')
-            .update({ status, output, updated_at: new Date() })
-            .eq('id', payload.new.id)
-
-          mainWindow.webContents.send(
-            'command-result',
-            JSON.stringify({ status: status, output: output })
-          )
-        })
-      }
-    )
-    .subscribe()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -123,3 +76,55 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+// Escuchar eventos de Supabase
+const userId = '6428ab79-6446-4b1f-a968-6d2246426728' // Reemplaza con el ID del usuario actual
+supabase
+  .channel('command-channel')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'command_history',
+      filter: `user_id=eq.${userId}`
+    },
+    async (payload) => {
+      const commandId = payload.new.command_id
+      const { data: commandData, error } = await supabase
+        .from('commands')
+        .select('command')
+        .eq('id', commandId)
+        .single()
+
+      if (error) {
+        console.error('Error fetching command:', error)
+        return
+      }
+
+      const command = commandData.command
+      exec(command, async (error, stdout, stderr) => {
+        let status = 'completed'
+        let output = stdout
+
+        if (error) {
+          status = 'error'
+          output = error.message
+        } else if (stderr) {
+          status = 'stderr'
+          output = stderr
+        }
+
+        await supabase
+          .from('command_history')
+          .update({ status, output, updated_at: new Date() })
+          .eq('id', payload.new.id)
+
+        mainWindow.webContents.send(
+          'command-result',
+          JSON.stringify({ status: status, output: output })
+        )
+      })
+    }
+  )
+  .subscribe()

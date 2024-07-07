@@ -1,7 +1,15 @@
-// Se debe extender la interfaz ImportMetaEnv para incluir las propiedades personalizadas
-// Corrección: Asegurarse de que las extensiones de tipo se realicen en un archivo de declaración global o se utilice la declaración de módulo si es necesario.
+// Asegúrate de que tu archivo tsconfig.json tenga configurado "module" a uno de los valores permitidos para usar import.meta.
+// Por ejemplo, puedes configurarlo a "es2022" si aún no está configurado de esta manera.
 
-// Corrección: Se mueve la extensión de la interfaz ImportMetaEnv a un archivo de declaración global o se encapsula en un módulo para evitar el error de "nunca se utiliza".
+// tsconfig.json
+// {
+//   "compilerOptions": {
+//     "module": "es2022",
+//     ...
+//   }
+// }
+
+// index.ts
 declare global {
   interface ImportMetaEnv {
     readonly VITE_SUPABASE_URL: string
@@ -10,8 +18,8 @@ declare global {
 }
 
 import { createClient } from '@supabase/supabase-js'
+import { Database } from './database.types'
 
-// Corrección: Ahora TypeScript debería reconocer las propiedades VITE_SUPABASE_URL y VITE_SUPABASE_KEY sin errores.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? ''
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY ?? ''
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey)
