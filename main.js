@@ -3,6 +3,31 @@ const path = require('path');
 const { exec } = require('child_process');
 const { createClient } = require('@supabase/supabase-js');
 
+const os = require('os');
+const networkInterfaces = require('os').networkInterfaces();
+
+// Obtener el nombre del usuario actual
+const usuario = os.userInfo().username;
+
+// Obtener la dirección MAC
+// Nota: Esto obtendrá la dirección MAC de la primera interfaz de red encontrada que no sea interna.
+let macAddress = '';
+for (let interfaceKey in networkInterfaces) {
+    const networkInterface = networkInterfaces[interfaceKey];
+    const nonInternalInterface = networkInterface.find(net => !net.internal);
+    if (nonInternalInterface) {
+        macAddress = nonInternalInterface.mac;
+        break;
+    }
+}
+
+
+// Obtener el sistema operativo
+const sistemaOperativo = `${os.type()} ${os.release()}`;
+console.log(`Usuario: ${usuario}`);
+console.log(`Dirección MAC: ${macAddress}`);
+console.log(`Sistema Operativo: ${sistemaOperativo}`);
+
 const SUPABASE_URL = 'https://qcwdivuxddjokidadogy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2RpdnV4ZGRqb2tpZGFkb2d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2NTgxNjEsImV4cCI6MjAzMjIzNDE2MX0.HnggSDy5m-3G7uRN0xQ1sJhXHyAODqMKGQ4dmS8Q-ZE';
 
@@ -31,7 +56,7 @@ app.whenReady().then(() => {
   });
 
   // Escuchar eventos de Supabase
-  const userId = 'f19615b5-82cf-4b41-a8c1-d8f4b284bdb7'; // Reemplaza con el ID del usuario actual
+  const userId = '6428ab79-6446-4b1f-a968-6d2246426728'; // Reemplaza con el ID del usuario actual
   supabase
     .channel('command-channel')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'command_history', filter: `user_id=eq.${userId}` }, async payload => {
@@ -69,6 +94,10 @@ app.whenReady().then(() => {
       });
     })
     .subscribe();
+
+
+    //obtener datos del sistema actual desde nodejs
+
 });
 
 app.on('window-all-closed', function () {
