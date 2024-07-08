@@ -1,4 +1,5 @@
 import { login } from '@renderer/actions'
+import { Button } from '@renderer/components/ui/button'
 import { useTransition } from 'react'
 
 export default function LoginPage() {
@@ -36,9 +37,9 @@ export default function LoginPage() {
             type="password"
             placeholder="Password"
           />
-          <button className="bg-blue-500 text-white p-2 rounded-md mt-2" onClick={onSubmit}>
+          <Button className="bg-blue-500 text-white p-2 rounded-md mt-2" onClick={onSubmit}>
             {isPending ? 'Loading...' : 'Login'}
-          </button>
+          </Button>
         </form>
       </div>
     </main>
