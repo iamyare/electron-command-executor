@@ -1,34 +1,19 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { Routes, Route } from 'react-router-dom'
+import MainPage from './pages/main'
+import LoginPage from './pages/auth/login/page'
+import NotFound from './pages/notFound'
+import Layout from './pages/Layout'
 
 function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text ">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        {/* Define las rutas como rutas hijas de Layout */}
+        <Route index element={<MainPage />} />
+        <Route path="auth/login" element={<LoginPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   )
 }
 
