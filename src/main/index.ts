@@ -14,7 +14,13 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
+    center: true,
+    title: 'Electron Toolkit',
+    vibrancy: 'under-window',
     autoHideMenuBar: true,
+    transparent: true,
+    frame: false,
+    visualEffectState: 'active',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
