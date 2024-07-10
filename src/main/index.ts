@@ -1,10 +1,9 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { supabase } from './supabase'
+
 import { exec } from 'child_process'
-import { createDevice, encrypt, findDevice, getDeviceNameLocal, getMAC } from './actions'
 
 let mainWindow: BrowserWindow
 
@@ -61,7 +60,23 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  // ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('execute-command', (event, command) => {
+    exec(command, (error, stdout, stderr) => {
+      let status = 'completed'
+      let output = stdout
+
+      if (error) {
+        status = 'error'
+        output = error.message
+      } else if (stderr) {
+        status = 'stderr'
+        output = stderr
+      }
+
+      event.reply('command-result', JSON.stringify({ status: status, output: output }))
+    })
+  })
 
   createWindow()
 
@@ -85,82 +100,82 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 // Escuchar eventos de Supabase
-const userId = '6428ab79-6446-4b1f-a968-6d2246426728' // Reemplaza con el ID del usuario actual
-supabase
-  .channel('command-channel')
-  .on(
-    'postgres_changes',
-    {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'command_history',
-      filter: `user_id=eq.${userId}`
-    },
-    async (payload) => {
-      const commandId = payload.new.command_id
-      const { data: commandData, error } = await supabase
-        .from('commands')
-        .select('command')
-        .eq('id', commandId)
-        .single()
+// const userId = '6428ab79-6446-4b1f-a968-6d2246426728' // Reemplaza con el ID del usuario actual
+// supabase
+//   .channel('command-channel')
+//   .on(
+//     'postgres_changes',
+//     {
+//       event: 'INSERT',
+//       schema: 'public',
+//       table: 'command_history',
+//       filter: `user_id=eq.${userId}`
+//     },
+//     async (payload) => {
+//       const commandId = payload.new.command_id
+//       const { data: commandData, error } = await supabase
+//         .from('commands')
+//         .select('command')
+//         .eq('id', commandId)
+//         .single()
 
-      if (error) {
-        console.error('Error fetching command:', error)
-        return
-      }
+//       if (error) {
+//         console.error('Error fetching command:', error)
+//         return
+//       }
 
-      const command = commandData.command
-      exec(command, async (error, stdout, stderr) => {
-        let status = 'completed'
-        let output = stdout
+//       const command = commandData.command
+//       exec(command, async (error, stdout, stderr) => {
+//         let status = 'completed'
+//         let output = stdout
 
-        if (error) {
-          status = 'error'
-          output = error.message
-        } else if (stderr) {
-          status = 'stderr'
-          output = stderr
-        }
+//         if (error) {
+//           status = 'error'
+//           output = error.message
+//         } else if (stderr) {
+//           status = 'stderr'
+//           output = stderr
+//         }
 
-        await supabase
-          .from('command_history')
-          .update({ status, output, updated_at: new Date().toISOString() })
-          .eq('id', payload.new.id)
+//         await supabase
+//           .from('command_history')
+//           .update({ status, output, updated_at: new Date().toISOString() })
+//           .eq('id', payload.new.id)
 
-        mainWindow.webContents.send(
-          'command-result',
-          JSON.stringify({ status: status, output: output })
-        )
-      })
-    }
-  )
-  .subscribe()
+//         mainWindow.webContents.send(
+//           'command-result',
+//           JSON.stringify({ status: status, output: output })
+//         )
+//       })
+//     }
+//   )
+//   .subscribe()
 
 //Obtener direccion MAC de la computadora
-const MAC = getMAC()
-const ENCRYPT_MAC = encrypt({ text: MAC, secret: userId, action: 'encrypt' })
-const DEVICE_NAME_LOCAL = getDeviceNameLocal()
-const OS = process.platform
+// const MAC = getMAC()
+// const ENCRYPT_MAC = encrypt({ text: MAC, secret: userId, action: 'encrypt' })
+// const DEVICE_NAME_LOCAL = getDeviceNameLocal()
+// const OS = process.platform
 
 // const encriptar = encrypt({ text: getMAC(), secret: 'secret', action: 'encrypt' })
 // console.log(encrypt({ text: encriptar, secret: 'secret', action: 'decrypt' }))
 
-async function hola() {
-  const { data: dataDevice, error: errorDevice } = await findDevice({ mac: ENCRYPT_MAC })
-  if (errorDevice) {
-    const { data: deviceCreator, error: errorCreateDevice } = await createDevice({
-      mac: ENCRYPT_MAC,
-      name: DEVICE_NAME_LOCAL,
-      os: OS,
-      user_id: userId
-    })
-    if (errorCreateDevice) {
-      console.error('Error creating device:', errorCreateDevice)
-      return
-    }
-    console.log(`Device created: ${JSON.stringify(deviceCreator)}`)
-  }
-  console.log(`Device found: ${JSON.stringify(dataDevice)}`)
-}
+// async function hola() {
+//   const { data: dataDevice, error: errorDevice } = await findDevice({ mac: ENCRYPT_MAC })
+//   if (errorDevice) {
+//     const { data: deviceCreator, error: errorCreateDevice } = await createDevice({
+//       mac: ENCRYPT_MAC,
+//       name: DEVICE_NAME_LOCAL,
+//       os: OS,
+//       user_id: userId
+//     })
+//     if (errorCreateDevice) {
+//       console.error('Error creating device:', errorCreateDevice)
+//       return
+//     }
+//     console.log(`Device created: ${JSON.stringify(deviceCreator)}`)
+//   }
+//   console.log(`Device found: ${JSON.stringify(dataDevice)}`)
+// }
 
-console.log(hola())
+// console.log(hola())
