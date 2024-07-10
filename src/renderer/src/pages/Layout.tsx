@@ -1,4 +1,4 @@
-import { getSessionDevice } from '@renderer/actions'
+import { getSession } from '@renderer/actions'
 import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
@@ -7,23 +7,18 @@ export default function Layout() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await getSessionDevice()
+      const isSession = getSession()
 
-      if (error) {
-        console.error(error)
-        return
+      if (!isSession) {
+        return navigate('/auth/login')
       }
 
-      console.log(data.session)
-
-      if (data.session === null) {
-        navigate('/auth/login')
-        return
-      }
+      navigate('/')
     }
 
     fetchData()
   }, [navigate])
+
   return (
     <div>
       <p></p>

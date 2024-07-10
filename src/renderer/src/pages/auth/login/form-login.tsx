@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { deleteToken, verifyToken } from '@renderer/actions'
+import { deleteToken, setSession, verifyToken } from '@renderer/actions'
 import { Button } from '@renderer/components/ui/button'
 import {
   Form,
@@ -16,6 +16,7 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import { Loader, LogIn } from 'lucide-react'
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 const FormSchema = z.object({
@@ -24,6 +25,7 @@ const FormSchema = z.object({
 
 export default function FormLogin() {
   const [isPending, startTransition] = useTransition()
+  const navigation = useNavigate()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -56,14 +58,9 @@ export default function FormLogin() {
           return // Asegura que la función termina después de mostrar el toast en caso de token expirado
         }
 
-        toast({
-          title: 'You submitted the following values:',
-          description: (
-            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-              <code className="text-white">{JSON.stringify(data)}</code>
-            </pre>
-          )
-        })
+        //crear un localStorage que se inicio sesion con el id del usuario, tiene que contener: Session: true, id: id del usuario como json
+        setSession({ sessionStatus: true, userId: result.user_id })
+        navigation('/')
       })()
     })
   }
