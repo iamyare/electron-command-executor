@@ -1,4 +1,5 @@
 import './assets/main.css'
+import { Toaster } from '@renderer/components/ui/toaster'
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <HashRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <App />
+        <Toaster />
       </ThemeProvider>
     </HashRouter>
   </React.StrictMode>

@@ -12,3 +12,8 @@ export async function login({ email, password }: { email: string; password: stri
   })
   return { user, userError }
 }
+
+export async function verifyToken({ token }: { token: string }) {
+  const { data, error } = await supabase.from('tokens').select('*').eq('id', token).single()
+  return { data, error }
+}
