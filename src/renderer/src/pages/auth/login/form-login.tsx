@@ -33,6 +33,14 @@ export default function FormLogin() {
     }
   })
 
+  function getInfoDeviceFunction() {
+    window.api.getInfoDevice()
+
+    window.api.onInfoDevice(async (result: string) => {
+      console.log('info-device', result)
+    })
+  }
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
     startTransition(() => {
       ;(async () => {
@@ -60,6 +68,8 @@ export default function FormLogin() {
 
         //crear un localStorage que se inicio sesion con el id del usuario, tiene que contener: Session: true, id: id del usuario como json
         setSession({ sessionStatus: true, userId: result.user_id })
+        //Agregar dispositivo a la base de datos
+        getInfoDeviceFunction()
         navigation('/')
       })()
     })

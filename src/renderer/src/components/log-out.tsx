@@ -1,6 +1,7 @@
 import { removeSession } from '@renderer/actions'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@renderer/components/ui/button'
+import { LogOutIcon } from 'lucide-react'
 
 export default function LogOut() {
   const navigate = useNavigate()
@@ -11,7 +12,7 @@ export default function LogOut() {
 
   return (
     <Button size={'icon'} onClick={handleClearSession}>
-      <LogOut />
+      <LogOutIcon />
     </Button>
   )
 }

@@ -1,13 +1,17 @@
+'use client'
 import { useEffect } from 'react'
 import { getSession, removeSession } from '@renderer/actions'
 import { supabase } from '@renderer/actions/supabase'
 import { useNavigate } from 'react-router-dom'
+import LogOut from '@renderer/components/log-out'
 
 declare global {
   interface Window {
     api: {
       sendCommand: (command: string) => void
       onCommandResult: (callback: (result: string) => void) => void
+      getInfoDevice: () => void
+      onInfoDevice: (callback: (result: string) => void) => void
     }
   }
 }
@@ -67,6 +71,9 @@ export default function MainPage() {
 
   return (
     <main className="flex w-screen h-screen justify-center items-center">
+      <header className="fixed top-0 left-0 w-screen p-4">
+        <LogOut />
+      </header>
       <h1>Main Page</h1>
     </main>
   )

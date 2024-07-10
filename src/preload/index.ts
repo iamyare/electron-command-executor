@@ -3,11 +3,14 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 type Command = string
 type CommandResultCallback = (event: Electron.IpcRendererEvent, result: string) => void
+type InfoDeviceCallback = (event: Electron.IpcRendererEvent, result: string) => void
 
 // Custom APIs for renderer
 const api = {
   sendCommand: (command: Command) => ipcRenderer.send('execute-command', command),
-  onCommandResult: (callback: CommandResultCallback) => ipcRenderer.on('command-result', callback)
+  onCommandResult: (callback: CommandResultCallback) => ipcRenderer.on('command-result', callback),
+  getInfoDevice: () => ipcRenderer.send('get-info-device'),
+  onInfoDevice: (callback: InfoDeviceCallback) => ipcRenderer.on('info-device', callback)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

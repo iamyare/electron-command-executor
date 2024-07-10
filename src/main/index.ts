@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 import { exec } from 'child_process'
+import { getDeviceNameLocal, getMAC } from './actions'
 
 let mainWindow: BrowserWindow
 
@@ -76,6 +77,14 @@ app.whenReady().then(() => {
 
       event.reply('command-result', JSON.stringify({ status: status, output: output }))
     })
+  })
+
+  ipcMain.on('get-info-device', (event) => {
+    const MAC = getMAC()
+    const DEVICE_NAME_LOCAL = getDeviceNameLocal()
+    const OS = process.platform
+
+    event.reply('info-device', JSON.stringify({ mac: MAC, name: DEVICE_NAME_LOCAL, os: OS }))
   })
 
   createWindow()
