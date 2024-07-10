@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { verifyToken } from '@renderer/actions'
+import { deleteToken, verifyToken } from '@renderer/actions'
 import { Button } from '@renderer/components/ui/button'
 import {
   Form,
@@ -34,25 +34,37 @@ export default function FormLogin() {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     startTransition(() => {
       ;(async () => {
-        // Se elimina el punto y coma inicial innecesario
         const { data: result, error: errorResult } = await verifyToken({ token: data.token })
         if (errorResult) {
+          if (errorResult.code === 'PGRST116') {
+            toast({ title: 'Error', description: 'Token not found' })
+            return // Asegura que la función termina después de mostrar el toast en caso de token expirado
+          }
           toast({ title: 'Error', description: errorResult.message })
           return // Asegura que la función termina después de mostrar el toast en caso de error
         }
         if (!result) {
-          toast({ title: 'Error', description: 'Invalid token' })
-          return // Asegura que la función termina después de mostrar el toast en caso de token inválido
+          toast({ title: 'Error', description: 'Token not found' })
+          return // Asegura que la función termina después de mostrar el toast en caso de token no
         }
+
+        //si el token ya pasó 30 minutos de expiración se muestra un mensaje de error
+        if (new Date(result.created_at).getTime() + 30 * 60000 < new Date().getTime()) {
+          toast({ title: 'Error', description: 'Token expired' })
+          //eliminar token
+          await deleteToken({ token: data.token })
+          return // Asegura que la función termina después de mostrar el toast en caso de token expirado
+        }
+
         toast({
           title: 'You submitted the following values:',
           description: (
             <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-              <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+              <code className="text-white">{JSON.stringify(data)}</code>
             </pre>
           )
         })
-      })() // Se invoca correctamente la función asíncrona
+      })()
     })
   }
 
