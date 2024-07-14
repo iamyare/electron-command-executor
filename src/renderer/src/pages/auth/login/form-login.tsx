@@ -33,14 +33,6 @@ export default function FormLogin() {
     }
   })
 
-  function getInfoDeviceFunction() {
-    window.api.getInfoDevice()
-
-    window.api.onInfoDevice(async (result) => {
-      console.log('info-device', result)
-    })
-  }
-
   function onSubmit(data: z.infer<typeof FormSchema>) {
     startTransition(() => {
       ;(async () => {

@@ -5,17 +5,6 @@ import { supabase } from '@renderer/actions/supabase'
 import { useNavigate } from 'react-router-dom'
 import LogOut from '@renderer/components/log-out'
 
-declare global {
-  interface Window {
-    api: {
-      sendCommand: (command: string) => void
-      onCommandResult: (callback: (result: string) => void) => void
-      getInfoDevice: () => void
-      onInfoDevice: (callback: (result: string) => void) => void
-    }
-  }
-}
-
 export default function MainPage() {
   const navigate = useNavigate()
 
@@ -69,28 +58,13 @@ export default function MainPage() {
     }
   }, [navigate])
 
-  async function getInfoDeviceFunction() {
-    try {
-      // Inicia el proceso asíncrono
-      window.api.getInfoDevice()
-
-      // Espera a que el evento onInfoDevice se dispare y maneja el resultado
-      const result = await new Promise((resolve, reject) => {
-        window.api.onInfoDevice((result) => {
-          resolve(result)
-        })
-
-        // Opcional: establecer un tiempo límite para rechazar la promesa si no se obtiene respuesta
-        setTimeout(() => {
-          reject(new Error('Timeout waiting for device info'))
-        }, 5000) // Espera 5 segundos
-      })
-
-      const { mac, name, os } = JSON.parse(result)
-      console.log('Device Info:', { mac, name, os })
-    } catch (error) {
-      console.error('Error al obtener la información del dispositivo:', error)
-    }
+  function getInfoDeviceFunction() {
+    // Inicia el proceso asíncrono
+    window.api.getInfoDeviceLocal()
+    // Escucha la respuesta del proceso asíncrono
+    window.api.onInfoDeviceLocal((result) => {
+      console.log('result', result)
+    })
   }
 
   return (

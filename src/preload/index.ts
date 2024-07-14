@@ -12,8 +12,9 @@ type InfoDeviceCallback = (
 const api = {
   sendCommand: (command: Command) => ipcRenderer.send('execute-command', command),
   onCommandResult: (callback: CommandResultCallback) => ipcRenderer.on('command-result', callback),
-  getInfoDevice: () => ipcRenderer.send('get-info-device'),
-  onInfoDevice: (callback: InfoDeviceCallback) => ipcRenderer.on('info-device', callback)
+  getInfoDeviceLocal: () => ipcRenderer.send('get-info-device-local'),
+  onInfoDeviceLocal: (callback: InfoDeviceCallback) =>
+    ipcRenderer.on('info-device-local', (event, result) => callback(event, result))
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
