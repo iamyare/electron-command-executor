@@ -58,13 +58,32 @@ export default function MainPage() {
     }
   }, [navigate])
 
+  // function getInfoDeviceFunction() {
+  //   // Inicia el proceso asíncrono
+  //   window.api.getInfoDeviceLocal()
+  //   // Escucha la respuesta del proceso asíncrono
+  //   window.api.onInfoDeviceLocal((result) => {
+  //     console.log('result', result)
+  //   })
+  // }
+
+  useEffect(() => {
+    // Definición simplificada de la función sin tipo específico para evitar el error de 'InfoDeviceCallback' no encontrado
+    const handleInfoDeviceLocal = (_event: Electron.IpcRendererEvent, result: string) => {
+      const info = JSON.parse(result)
+      console.log('Device Info:', info)
+    }
+
+    window.api.onInfoDeviceLocal(handleInfoDeviceLocal)
+
+    return () => {
+      // Ajuste para pasar una función dummy que cumple con la firma esperada en lugar de null
+      window.api.onInfoDeviceLocal(() => {})
+    }
+  }, [])
+
   function getInfoDeviceFunction() {
-    // Inicia el proceso asíncrono
     window.api.getInfoDeviceLocal()
-    // Escucha la respuesta del proceso asíncrono
-    window.api.onInfoDeviceLocal((result) => {
-      console.log('result', result)
-    })
   }
 
   return (
