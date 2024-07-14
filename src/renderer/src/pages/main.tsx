@@ -69,10 +69,35 @@ export default function MainPage() {
     }
   }, [navigate])
 
+  async function getInfoDeviceFunction() {
+    try {
+      // Inicia el proceso asíncrono
+      window.api.getInfoDevice()
+
+      // Espera a que el evento onInfoDevice se dispare y maneja el resultado
+      const result = await new Promise((resolve, reject) => {
+        window.api.onInfoDevice((result) => {
+          resolve(result)
+        })
+
+        // Opcional: establecer un tiempo límite para rechazar la promesa si no se obtiene respuesta
+        setTimeout(() => {
+          reject(new Error('Timeout waiting for device info'))
+        }, 5000) // Espera 5 segundos
+      })
+
+      const { mac, name, os } = JSON.parse(result)
+      console.log('Device Info:', { mac, name, os })
+    } catch (error) {
+      console.error('Error al obtener la información del dispositivo:', error)
+    }
+  }
+
   return (
     <main className="flex w-screen h-screen justify-center items-center">
       <header className="fixed top-0 left-0 w-screen p-4">
         <LogOut />
+        <button onClick={getInfoDeviceFunction}>Get Info Device</button>
       </header>
       <h1>Main Page</h1>
     </main>

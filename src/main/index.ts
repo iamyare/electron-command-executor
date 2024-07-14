@@ -84,6 +84,8 @@ app.whenReady().then(() => {
     const DEVICE_NAME_LOCAL = getDeviceNameLocal()
     const OS = process.platform
 
+    console.log(MAC, DEVICE_NAME_LOCAL, OS)
+
     event.reply('info-device', JSON.stringify({ mac: MAC, name: DEVICE_NAME_LOCAL, os: OS }))
   })
 

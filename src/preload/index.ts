@@ -3,7 +3,10 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 type Command = string
 type CommandResultCallback = (event: Electron.IpcRendererEvent, result: string) => void
-type InfoDeviceCallback = (event: Electron.IpcRendererEvent, result: string) => void
+type InfoDeviceCallback = (
+  event: Electron.IpcRendererEvent,
+  result: { mac: string; name: string; os: string }
+) => void
 
 // Custom APIs for renderer
 const api = {
