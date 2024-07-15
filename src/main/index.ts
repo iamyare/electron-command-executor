@@ -15,7 +15,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     center: true,
-    title: 'Electron Toolkit',
+    title: 'Command Executor',
     vibrancy: 'under-window',
     autoHideMenuBar: true,
     transparent: true,
