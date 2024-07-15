@@ -88,7 +88,7 @@ export default function MainPage() {
 
   return (
     <main className="flex w-screen h-screen justify-center items-center">
-      <header className="fixed top-0 left-0 w-screen p-4">
+      <header id="titlebar" className="fixed top-0 left-0 w-screen p-4">
         <LogOut />
         <button onClick={getInfoDeviceFunction}>Get Info Device</button>
       </header>

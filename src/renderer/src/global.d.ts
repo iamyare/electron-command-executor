@@ -7,7 +7,9 @@ declare global {
       sendCommand: (command: string) => void
       onCommandResult: (callback: (result: string) => void) => void
       getInfoDeviceLocal: () => void
-      onInfoDeviceLocal: (callback: (result: string) => void) => void
+      onInfoDeviceLocal: (
+        callback: (_event: Electron.IpcRendererEvent, result: string) => void
+      ) => void
     }
   }
 }

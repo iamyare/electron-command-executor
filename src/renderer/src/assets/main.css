@@ -21,3 +21,12 @@
   mask-image: radial-gradient(circle at center, black , transparent 70%);
   mask-size: cover;
 }
+
+/* En tu archivo CSS */
+#titlebar button {
+  -webkit-app-region: no-drag;
+}
+
+#titlebar {
+  -webkit-app-region: drag;
+}
