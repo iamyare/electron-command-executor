@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import CryptoJS from 'crypto-js'
-const SECRET_KEY = 'tu_clave_secreta_muy_segura' // Asegúrate de cambiar esto por una clave secreta segura
+
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY ?? 'secret'
 
 interface EncryptParams {
   text: string
