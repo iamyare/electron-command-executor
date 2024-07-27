@@ -83,7 +83,7 @@ export default function FormLogin() {
           return
         }
 
-        await deleteToken({ token: data.token })
+        // await deleteToken({ token: data.token })
 
         // Obtener información del dispositivo
         const deviceInfo = await getInfoDeviceFunction()
