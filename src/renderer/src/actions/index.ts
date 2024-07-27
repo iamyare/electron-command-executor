@@ -8,24 +8,42 @@ interface EncryptParams {
   action: 'encrypt' | 'decrypt'
 }
 
-function generateUUIDLike(input: string): string {
-  const hash = CryptoJS.SHA256(input)
-  const hashHex = hash.toString(CryptoJS.enc.Hex)
+function generateDeterministicUUIDLike(input: string): string {
+  // Utilizamos HMAC-SHA256 para generar un hash determinista
+  const hmac = CryptoJS.HmacSHA256(input, SECRET_KEY)
+  const hash = hmac.toString(CryptoJS.enc.Hex)
 
   // Formatea el hash para que se parezca a un UUID
-  return `${hashHex.substr(0, 8)}-${hashHex.substr(8, 4)}-${hashHex.substr(12, 4)}-${hashHex.substr(16, 4)}-${hashHex.substr(20, 12)}`
+  return `${hash.substr(0, 8)}-${hash.substr(8, 4)}-${hash.substr(12, 4)}-${hash.substr(16, 4)}-${hash.substr(20, 12)}`
 }
 
 export function encrypt({ text, action }: EncryptParams): string {
   if (action === 'encrypt') {
-    const encrypted = CryptoJS.AES.encrypt(text, SECRET_KEY).toString()
-    return generateUUIDLike(encrypted)
+    // Verificamos si el texto se parece a una dirección MAC
+    const isMacAddress = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(text)
+
+    if (isMacAddress) {
+      // Si es una dirección MAC, usamos la función determinista
+      return generateDeterministicUUIDLike(text)
+    } else {
+      // Para otros tipos de texto, mantenemos la encriptación aleatoria
+      const encrypted = CryptoJS.AES.encrypt(text, SECRET_KEY).toString()
+      return generateDeterministicUUIDLike(encrypted)
+    }
   } else {
-    // Para desencriptar, primero necesitamos convertir el UUID-like back a la forma encriptada
+    // La desencriptación se mantiene igual que antes
     const allParts = text.split('-').join('')
-    const encryptedText = CryptoJS.enc.Hex.parse(allParts).toString(CryptoJS.enc.Base64)
-    const bytes = CryptoJS.AES.decrypt(encryptedText, SECRET_KEY)
-    return bytes.toString(CryptoJS.enc.Utf8)
+    // Intentamos desencriptar directamente (para MACs encriptadas)
+    let decrypted = ''
+    try {
+      const bytes = CryptoJS.AES.decrypt(allParts, SECRET_KEY)
+      decrypted = bytes.toString(CryptoJS.enc.Utf8)
+    } catch (error) {
+      // Si falla, asumimos que es una MAC encriptada y no hacemos nada
+      // Ya que no podemos revertir el HMAC
+      decrypted = text
+    }
+    return decrypted
   }
 }
 

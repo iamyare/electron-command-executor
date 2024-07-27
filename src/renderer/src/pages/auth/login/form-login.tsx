@@ -1,4 +1,4 @@
-import { useEffect, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { deleteToken, sendDevice, setSession, verifyToken } from '@renderer/actions'
 import { Button } from '@renderer/components/ui/button'
@@ -24,7 +24,7 @@ const FormSchema = z.object({
 })
 
 export default function FormLogin() {
-  const [isPending, startTransition] = useTransition()
+  const [isPending, startTransition] = useState(false)
   const navigation = useNavigate()
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -60,53 +60,56 @@ export default function FormLogin() {
     })
   }
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
-    startTransition(() => {
-      ;(async () => {
-        const { data: result, error: errorResult } = await verifyToken({ token: data.token })
-        if (errorResult) {
-          if (errorResult.code === 'PGRST116') {
-            toast({ title: 'Error', description: 'Token not found' })
-            return
-          }
-          toast({ title: 'Error', description: errorResult.message })
-          return
-        }
-        if (!result) {
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    startTransition(true)
+    const processSubmit = async () => {
+      const { data: result, error: errorResult } = await verifyToken({ token: data.token })
+      if (errorResult) {
+        if (errorResult.code === 'PGRST116') {
           toast({ title: 'Error', description: 'Token not found' })
           return
         }
+        toast({ title: 'Error', description: errorResult.message })
+        return
+      }
+      if (!result) {
+        toast({ title: 'Error', description: 'Token not found' })
+        return
+      }
 
-        if (new Date(result.created_at).getTime() + 30 * 60000 < new Date().getTime()) {
-          toast({ title: 'Error', description: 'Token expired' })
-          await deleteToken({ token: data.token })
-          return
-        }
+      if (new Date(result.created_at).getTime() + 30 * 60000 < new Date().getTime()) {
+        toast({ title: 'Error', description: 'Token expired' })
+        await deleteToken({ token: data.token })
+        return
+      }
 
-        // await deleteToken({ token: data.token })
+      // Obtener información del dispositivo
+      const deviceInfo = await getInfoDeviceFunction()
 
-        // Obtener información del dispositivo
-        const deviceInfo = await getInfoDeviceFunction()
+      // Enviar información del dispositivo
+      const { deviceInsert, errorDeviceInsert } = await sendDevice({
+        id: deviceInfo.id,
+        name: deviceInfo.name,
+        os: deviceInfo.os,
+        user_id: result.user_id
+      })
 
-        // Enviar información del dispositivo
-        const { deviceInsert, errorDeviceInsert } = await sendDevice({
-          id: deviceInfo.id,
-          name: deviceInfo.name,
-          os: deviceInfo.os,
-          user_id: result.user_id
-        })
+      if (errorDeviceInsert) {
+        console.error('Error al enviar información del dispositivo:', errorDeviceInsert)
+        toast({ title: 'Warning', description: 'Unable to send device information' })
+      } else {
+        console.log('Información del dispositivo enviada:', deviceInsert)
+      }
 
-        if (errorDeviceInsert) {
-          console.error('Error al enviar información del dispositivo:', errorDeviceInsert)
-          toast({ title: 'Warning', description: 'Unable to send device information' })
-        } else {
-          console.log('Información del dispositivo enviada:', deviceInsert)
-        }
+      setSession({ sessionStatus: true, userId: result.user_id })
+      navigation('/')
+    }
 
-        setSession({ sessionStatus: true, userId: result.user_id })
-        navigation('/')
-      })()
+    processSubmit().catch((error) => {
+      console.error('Error in form submission:', error)
+      toast({ title: 'Error', description: 'An unexpected error occurred' })
     })
+    startTransition(false)
   }
 
   return (
