@@ -56,6 +56,6 @@
       @apply border-border;
     }
     body {
-      @apply bg-transparent text-foreground;
+      @apply bg-background/50  text-foreground;
     }
   }

@@ -84,7 +84,7 @@ app.whenReady().then(() => {
     const DEVICE_NAME_LOCAL = getDeviceNameLocal()
     const OS = process.platform
 
-    event.reply('info-device-local', JSON.stringify({ mac: MAC, name: DEVICE_NAME_LOCAL, os: OS }))
+    event.reply('info-device-local', JSON.stringify({ id: MAC, name: DEVICE_NAME_LOCAL, os: OS }))
   })
 
   createWindow()

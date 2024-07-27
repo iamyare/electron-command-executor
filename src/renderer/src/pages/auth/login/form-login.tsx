@@ -1,5 +1,6 @@
+import { useEffect, useTransition } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { deleteToken, setSession, verifyToken } from '@renderer/actions'
+import { deleteToken, sendDevice, setSession, verifyToken } from '@renderer/actions'
 import { Button } from '@renderer/components/ui/button'
 import {
   Form,
@@ -14,7 +15,6 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@renderer/components/ui/i
 import { toast } from '@renderer/components/ui/use-toast'
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp'
 import { Loader, LogIn } from 'lucide-react'
-import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
@@ -33,34 +33,77 @@ export default function FormLogin() {
     }
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  useEffect(() => {
+    const handleInfoDeviceLocal = (_event: Electron.IpcRendererEvent, result: string) => {
+      const info = JSON.parse(result)
+      console.log('Device Info:', info)
+      // Aquí puedes manejar la información del dispositivo si es necesario
+    }
+
+    window.api.onInfoDeviceLocal(handleInfoDeviceLocal)
+
+    return () => {
+      window.api.onInfoDeviceLocal(() => {})
+    }
+  }, [])
+
+  function getInfoDeviceFunction(): Promise<DeviceInfoType> {
+    return new Promise((resolve) => {
+      const handleInfoDeviceLocal = (_event: Electron.IpcRendererEvent, result: string) => {
+        const info = JSON.parse(result)
+        resolve(info)
+        window.api.onInfoDeviceLocal(() => {}) // Limpia el listener después de recibir la info
+      }
+
+      window.api.onInfoDeviceLocal(handleInfoDeviceLocal)
+      window.api.getInfoDeviceLocal()
+    })
+  }
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     startTransition(() => {
       ;(async () => {
         const { data: result, error: errorResult } = await verifyToken({ token: data.token })
         if (errorResult) {
           if (errorResult.code === 'PGRST116') {
             toast({ title: 'Error', description: 'Token not found' })
-            return // Asegura que la función termina después de mostrar el toast en caso de token expirado
+            return
           }
           toast({ title: 'Error', description: errorResult.message })
-          return // Asegura que la función termina después de mostrar el toast en caso de error
+          return
         }
         if (!result) {
           toast({ title: 'Error', description: 'Token not found' })
-          return // Asegura que la función termina después de mostrar el toast en caso de token no
+          return
         }
 
-        //si el token ya pasó 30 minutos de expiración se muestra un mensaje de error
         if (new Date(result.created_at).getTime() + 30 * 60000 < new Date().getTime()) {
           toast({ title: 'Error', description: 'Token expired' })
-          //eliminar token
           await deleteToken({ token: data.token })
-          return // Asegura que la función termina después de mostrar el toast en caso de token expirado
+          return
         }
 
-        //crear un localStorage que se inicio sesion con el id del usuario, tiene que contener: Session: true, id: id del usuario como json
+        await deleteToken({ token: data.token })
+
+        // Obtener información del dispositivo
+        const deviceInfo = await getInfoDeviceFunction()
+
+        // Enviar información del dispositivo
+        const { deviceInsert, errorDeviceInsert } = await sendDevice({
+          id: deviceInfo.id,
+          name: deviceInfo.name,
+          os: deviceInfo.os,
+          user_id: result.user_id
+        })
+
+        if (errorDeviceInsert) {
+          console.error('Error al enviar información del dispositivo:', errorDeviceInsert)
+          toast({ title: 'Warning', description: 'Unable to send device information' })
+        } else {
+          console.log('Información del dispositivo enviada:', deviceInsert)
+        }
+
         setSession({ sessionStatus: true, userId: result.user_id })
-        //Agregar dispositivo a la base de datos
         navigation('/')
       })()
     })
@@ -68,10 +111,7 @@ export default function FormLogin() {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className=" flex flex-col items-center space-y-6"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center space-y-6">
         <FormField
           control={form.control}
           name="token"

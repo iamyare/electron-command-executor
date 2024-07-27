@@ -1,7 +1,5 @@
 import { supabase } from './supabase'
 
-//encriptar y desencriptar los uuid
-
 interface SessionData {
   Session: boolean
   id: string
@@ -43,4 +41,16 @@ export async function verifyToken({ token }: { token: string }) {
 export async function deleteToken({ token }: { token: string }) {
   const { error } = await supabase.from('tokens').delete().eq('id', token)
   return { error }
+}
+
+//Enviar device a device
+export async function sendDevice({ id, name, os, user_id }: DeviceInsert) {
+  const newId = encrypt({ text: id, action: 'encrypt' })
+  console.log('newId', newId)
+  const { data: deviceInsert, error: errorDeviceInsert } = await supabase
+    .from('devices')
+    .insert({ id: newId, name, os, user_id })
+    .single()
+
+  return { deviceInsert, errorDeviceInsert }
 }

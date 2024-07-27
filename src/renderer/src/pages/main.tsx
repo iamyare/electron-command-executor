@@ -58,25 +58,6 @@ export default function MainPage() {
     }
   }, [navigate])
 
-  // useEffect(() => {
-  //   // Definición simplificada de la función sin tipo específico para evitar el error de 'InfoDeviceCallback' no encontrado
-  //   const handleInfoDeviceLocal = (_event: Electron.IpcRendererEvent, result: string) => {
-  //     const info = JSON.parse(result)
-  //     console.log('Device Info:', info)
-  //   }
-
-  //   window.api.onInfoDeviceLocal(handleInfoDeviceLocal)
-
-  //   return () => {
-  //     // Ajuste para pasar una función dummy que cumple con la firma esperada en lugar de null
-  //     window.api.onInfoDeviceLocal(() => {})
-  //   }
-  // }, [])
-
-  // function getInfoDeviceFunction() {
-  //   window.api.getInfoDeviceLocal()
-  // }
-
   return (
     <main className="flex w-screen h-screen justify-center items-center">
       <Navbar />
