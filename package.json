@@ -1,10 +1,12 @@
 {
-  "name": "electron-command-executor",
+  "name": "command-executor-desktop",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Command Executor es una potente aplicación de escritorio diseñada para ejecutar comandos de terminal personalizados en diferentes sistemas operativos. Funciona como el ejecutor local de los comandos gestionados a través de la aplicación web complementaria.",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "iamyare",
+  "homepage": "https://github.com/iamyare/electron-command-executor",
+  "license": "MIT",
+  "private": true,
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
@@ -20,6 +22,31 @@
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
     "gen-types": "npx supabase gen types typescript --project-id qcwdivuxddjokidadogy > src/main/supabase/database.types.ts"
+  },
+  "build": {
+    "appId": "com.example.commandexecutor",
+    "productName": "Command Executor",
+    "mac": {
+      "icon": "resources/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "icon": "resources/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",

@@ -21,6 +21,24 @@ let mainWindow: BrowserWindow
 let tray: Tray
 let isQuitting = false
 
+// function setAutoLaunch(enable: boolean) {
+//   if (process.platform === 'darwin') {
+//     app.setLoginItemSettings({
+//       openAtLogin: enable,
+//       path: app.getPath('exe')
+//     })
+//   } else if (process.platform === 'win32') {
+//     app.setLoginItemSettings({
+//       openAtLogin: enable,
+//       path: process.execPath,
+//       args: ['--processStart', `"${app.getName()}"`]
+//     })
+//   } else {
+//     // Para Linux, necesitarás implementar una solución personalizada
+//     console.log('Auto-start no está implementado para esta plataforma')
+//   }
+// }
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -40,6 +58,8 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  // setAutoLaunch(true)
 
   if (process.platform === 'darwin') {
     app.dock.setIcon(nativeImage.createFromPath(getIconPath()))
