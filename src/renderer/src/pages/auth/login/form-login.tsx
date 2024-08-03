@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { deleteToken, sendDevice, setSession, verifyToken } from '@renderer/actions'
+import { deleteToken, getInfoDevice, sendDevice, setSession, verifyToken } from '@renderer/actions'
 import { Button } from '@renderer/components/ui/button'
 import {
   Form,
@@ -86,6 +86,22 @@ export default function FormLogin() {
       // Obtener información del dispositivo
       const deviceInfo = await getInfoDeviceFunction()
 
+      //comprobar si el dispositivo ya está registrado
+      const { deviceInfo: getDeviceInfo, error: errorDeviceInfo } = await getInfoDevice({
+        deviceId: deviceInfo.id
+      })
+      if (errorDeviceInfo) {
+        console.error('Error al obtener información del dispositivo:', errorDeviceInfo)
+        toast({ title: 'Warning', description: 'Unable to get device information' })
+      }
+
+      if (getDeviceInfo) {
+        toast({ title: 'Warning', description: 'Device already registered' })
+        setSession({ sessionStatus: true, userId: result.user_id, deviceId: getDeviceInfo.id })
+        navigation('/')
+        return
+      }
+
       // Enviar información del dispositivo
       const { deviceInsert, errorDeviceInsert } = await sendDevice({
         id: deviceInfo.id,
@@ -101,7 +117,7 @@ export default function FormLogin() {
         console.log('Información del dispositivo enviada:', deviceInsert)
       }
 
-      setSession({ sessionStatus: true, userId: result.user_id })
+      setSession({ sessionStatus: true, userId: result.user_id, deviceId: deviceInsert?.id ?? '' })
       navigation('/')
     }
 

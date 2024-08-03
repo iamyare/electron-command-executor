@@ -7,6 +7,7 @@ export type Database = {
         Row: {
           command_id: string
           created_at: string
+          device_id: string | null
           id: string
           output: string | null
           status: string
@@ -16,6 +17,7 @@ export type Database = {
         Insert: {
           command_id: string
           created_at?: string
+          device_id?: string | null
           id?: string
           output?: string | null
           status?: string
@@ -25,6 +27,7 @@ export type Database = {
         Update: {
           command_id?: string
           created_at?: string
+          device_id?: string | null
           id?: string
           output?: string | null
           status?: string
@@ -37,6 +40,13 @@ export type Database = {
             columns: ['command_id']
             isOneToOne: false
             referencedRelation: 'commands'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'command_history_device_id_fkey'
+            columns: ['device_id']
+            isOneToOne: false
+            referencedRelation: 'devices'
             referencedColumns: ['id']
           },
           {

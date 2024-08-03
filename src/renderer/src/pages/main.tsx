@@ -24,7 +24,7 @@ export default function MainPage() {
           event: 'INSERT',
           schema: 'public',
           table: 'command_history',
-          filter: `user_id=eq.${session.id}`
+          filter: `device_id=eq.${session.deviceId}`
         },
         async (payload) => {
           const commandId = payload.new.command_id

@@ -16,35 +16,6 @@ export function getMAC(): string {
   return macAddress
 }
 
-//encriptar y desencriptar texto con un id
-export function encrypt({
-  text,
-  secret,
-  action
-}: {
-  text: string
-  secret: string
-  action: 'encrypt' | 'decrypt'
-}): string {
-  const crypto = require('crypto')
-  const algorithm = 'aes-256-cbc'
-  const key = crypto.scryptSync(secret, 'salt', 32)
-  const iv = Buffer.alloc(16, 0)
-  const cipher = crypto.createCipheriv(algorithm, key, iv)
-  const decipher = crypto.createDecipheriv(algorithm, key, iv)
-  let encrypted = ''
-  let decrypted = ''
-  if (action === 'encrypt') {
-    encrypted = cipher.update(text, 'utf8', 'hex')
-    encrypted += cipher.final('hex')
-    return encrypted
-  } else {
-    decrypted = decipher.update(text, 'hex', 'utf8')
-    decrypted += decipher.final('utf8')
-    return decrypted
-  }
-}
-
 //obtener nombre del dispositivo de la computadora
 export function getDeviceNameLocal(): string {
   return userInfo().username

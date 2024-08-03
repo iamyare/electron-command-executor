@@ -50,6 +50,7 @@ export function encrypt({ text, action }: EncryptParams): string {
 interface SessionData {
   Session: boolean
   id: string
+  deviceId: string
 }
 
 export function getSession(): SessionData | null {
@@ -62,10 +63,22 @@ export function getSession(): SessionData | null {
   return null
 }
 
-export function setSession({ sessionStatus, userId }: { sessionStatus: boolean; userId: string }) {
+export function setSession({
+  sessionStatus,
+  userId,
+  deviceId
+}: {
+  sessionStatus: boolean
+  userId: string
+  deviceId: string
+}) {
   localStorage.setItem(
     'Session',
-    JSON.stringify({ Session: sessionStatus, id: encrypt({ text: userId, action: 'encrypt' }) })
+    JSON.stringify({
+      Session: sessionStatus,
+      id: encrypt({ text: userId, action: 'encrypt' }),
+      deviceId: deviceId
+    })
   )
 }
 
@@ -98,13 +111,24 @@ export async function deleteToken({ token }: { token: string }) {
 //Enviar device a device
 export async function sendDevice({ id, name, os, user_id }: DeviceInsert) {
   const newId = encrypt({ text: id, action: 'encrypt' })
-  console.log('newId', newId)
   const { data: deviceInsert, error: errorDeviceInsert } = await supabase
     .from('devices')
     .insert({ id: newId, name, os, user_id })
+    .select('*')
     .single()
 
   return { deviceInsert, errorDeviceInsert }
+}
+
+//Obtener información del dispositivo
+export async function getInfoDevice({ deviceId }: { deviceId: string }) {
+  const newId = encrypt({ text: deviceId, action: 'encrypt' })
+  const { data: deviceInfo, error } = await supabase
+    .from('devices')
+    .select('*')
+    .eq('id', newId)
+    .single()
+  return { deviceInfo, error }
 }
 
 export async function getDevicesByUser({ userId }: { userId: string }) {
