@@ -11,7 +11,8 @@ const api = {
   onCommandResult: (callback: CommandResultCallback) => ipcRenderer.on('command-result', callback),
   getInfoDeviceLocal: () => ipcRenderer.send('get-info-device-local'),
   onInfoDeviceLocal: (callback: InfoDeviceCallback) =>
-    ipcRenderer.on('info-device-local', (event, result) => callback(event, result))
+    ipcRenderer.on('info-device-local', (event, result) => callback(event, result)),
+  minimizeApp: () => ipcRenderer.send('minimize-app')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -30,5 +31,3 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api
 }
-
-contextBridge.exposeInMainWorld('api', api)

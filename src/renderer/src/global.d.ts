@@ -19,6 +19,7 @@ declare global {
       onInfoDeviceLocal: (
         callback: (_event: Electron.IpcRendererEvent, result: string) => void
       ) => void
+      minimizeApp: () => void
     }
   }
 }
