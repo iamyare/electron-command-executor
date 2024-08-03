@@ -106,3 +106,11 @@ export async function sendDevice({ id, name, os, user_id }: DeviceInsert) {
 
   return { deviceInsert, errorDeviceInsert }
 }
+
+export async function getDevicesByUser({ userId }: { userId: string }) {
+  const { data: devices, error: errorDevices } = await supabase
+    .from('devices')
+    .select('*')
+    .eq('user_id', userId)
+  return { devices, errorDevices }
+}
