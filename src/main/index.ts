@@ -1,7 +1,18 @@
 import { app, shell, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import icon from '../../resources/icon_tray.png?asset'
+
+// Importamos el icono de la aplicación de manera diferente para cada plataforma
+const getIconPath = () => {
+  if (process.platform === 'win32') {
+    return join(__dirname, '../../resources/icon.ico')
+  } else if (process.platform === 'darwin') {
+    return join(__dirname, '../../resources/icon.icns')
+  } else {
+    return join(__dirname, '../../resources/icon.png')
+  }
+}
 
 import { exec } from 'child_process'
 import { getDeviceNameLocal, getMAC } from './actions'
@@ -23,12 +34,16 @@ function createWindow(): void {
     transparent: true,
     frame: false,
     visualEffectState: 'active',
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: getIconPath(), // Usamos la función para obtener la ruta del icono
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
   })
+
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(nativeImage.createFromPath(getIconPath()))
+  }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -94,6 +109,11 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
+  // Establecer el icono de la aplicación para Windows
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(process.execPath)
+  }
+
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -146,7 +166,7 @@ app.whenReady().then(() => {
 })
 
 // Modificar el comportamiento de cierre de la aplicación
-app.on('window-all-closed', (event) => {
+app.on('window-all-closed', (event: Electron.Event) => {
   event.preventDefault()
 })
 
