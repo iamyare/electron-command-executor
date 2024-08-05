@@ -1,0 +1,31 @@
+@import './base.css';
+
+
+
+#noisy {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.9;
+  z-index: -1;
+  background: url('./background_noisy.webp');
+}
+
+
+.bg-dot{
+  background-image: linear-gradient(to right, hsl(var(--foreground) / var(--bg-opacity)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / var(--bg-opacity)) 1px, transparent 1px);
+  background-size: 6rem 6rem;
+  mask-image: radial-gradient(circle at center, black , transparent 70%);
+  mask-size: cover;
+}
+
+#titlebar button {
+  -webkit-app-region: no-drag;
+}
+
+#titlebar {
+  -webkit-app-region: drag;
+}

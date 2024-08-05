@@ -1,0 +1,96 @@
+{
+  "name": "command-executor-desktop",
+  "version": "1.0.0",
+  "description": "Command Executor es una potente aplicación de escritorio diseñada para ejecutar comandos de terminal personalizados en diferentes sistemas operativos. Funciona como el ejecutor local de los comandos gestionados a través de la aplicación web complementaria.",
+  "main": "./out/main/index.js",
+  "author": "iamyare",
+  "homepage": "https://github.com/iamyare/electron-command-executor",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev",
+    "build": "npm run typecheck && electron-vite build",
+    "postinstall": "electron-builder install-app-deps",
+    "build:unpack": "npm run build && electron-builder --dir",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "electron-vite build && electron-builder --mac",
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "gen-types": "npx supabase gen types typescript --project-id qcwdivuxddjokidadogy > src/main/supabase/database.types.ts"
+  },
+  "build": {
+    "appId": "com.example.commandexecutor",
+    "productName": "Command Executor",
+    "mac": {
+      "icon": "resources/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "resources/icon.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "icon": "resources/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@hookform/resolvers": "^3.9.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-tooltip": "^1.1.2",
+    "@supabase/supabase-js": "^2.44.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
+    "electron-updater": "^6.1.7",
+    "input-otp": "^1.2.4",
+    "lucide-react": "^0.403.0",
+    "react-hook-form": "^7.52.1",
+    "react-router-dom": "^6.24.1",
+    "tailwind-merge": "^2.4.0",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@electron-toolkit/eslint-config-prettier": "^2.0.0",
+    "@electron-toolkit/eslint-config-ts": "^2.0.0",
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^20.14.8",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "electron": "^31.0.2",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.3",
+    "postcss": "^8.4.39",
+    "prettier": "^3.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
+  }
+}
