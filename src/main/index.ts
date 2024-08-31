@@ -21,23 +21,23 @@ let mainWindow: BrowserWindow
 let tray: Tray
 let isQuitting = false
 
-// function setAutoLaunch(enable: boolean) {
-//   if (process.platform === 'darwin') {
-//     app.setLoginItemSettings({
-//       openAtLogin: enable,
-//       path: app.getPath('exe')
-//     })
-//   } else if (process.platform === 'win32') {
-//     app.setLoginItemSettings({
-//       openAtLogin: enable,
-//       path: process.execPath,
-//       args: ['--processStart', `"${app.getName()}"`]
-//     })
-//   } else {
-//     // Para Linux, necesitarás implementar una solución personalizada
-//     console.log('Auto-start no está implementado para esta plataforma')
-//   }
-// }
+function setAutoLaunch(enable: boolean) {
+  if (process.platform === 'darwin') {
+    app.setLoginItemSettings({
+      openAtLogin: enable,
+      path: app.getPath('exe')
+    })
+  } else if (process.platform === 'win32') {
+    app.setLoginItemSettings({
+      openAtLogin: enable,
+      path: process.execPath,
+      args: ['--processStart', `"${app.getName()}"`]
+    })
+  } else {
+    // Para Linux, necesitarás implementar una solución personalizada
+    console.log('Auto-start no está implementado para esta plataforma')
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -173,6 +173,14 @@ app.whenReady().then(() => {
     if (process.platform === 'darwin') {
       app.dock.hide()
     }
+  })
+
+  ipcMain.handle('get-auto-launch', () => {
+    return app.getLoginItemSettings().openAtLogin
+  })
+
+  ipcMain.on('set-auto-launch', (_event, enable) => {
+    setAutoLaunch(enable)
   })
 
   createWindow()

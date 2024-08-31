@@ -12,7 +12,9 @@ const api = {
   getInfoDeviceLocal: () => ipcRenderer.send('get-info-device-local'),
   onInfoDeviceLocal: (callback: InfoDeviceCallback) =>
     ipcRenderer.on('info-device-local', (event, result) => callback(event, result)),
-  minimizeApp: () => ipcRenderer.send('minimize-app')
+  minimizeApp: () => ipcRenderer.send('minimize-app'),
+  getAutoLaunch: () => ipcRenderer.invoke('get-auto-launch'),
+  setAutoLaunch: (enable: boolean) => ipcRenderer.send('set-auto-launch', enable)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

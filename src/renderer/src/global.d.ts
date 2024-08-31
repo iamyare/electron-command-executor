@@ -20,6 +20,8 @@ declare global {
         callback: (_event: Electron.IpcRendererEvent, result: string) => void
       ) => void
       minimizeApp: () => void
+      getAutoLaunch: () => Promise<boolean>
+      setAutoLaunch: (enable: boolean) => void
     }
   }
 }
