@@ -25,13 +25,14 @@ function setAutoLaunch(enable: boolean) {
   if (process.platform === 'darwin') {
     app.setLoginItemSettings({
       openAtLogin: enable,
-      path: app.getPath('exe')
+      path: app.getPath('exe'),
+      name: 'CommandExecutor'
     })
   } else if (process.platform === 'win32') {
     app.setLoginItemSettings({
       openAtLogin: enable,
       path: process.execPath,
-      args: ['--processStart', `"${app.getName()}"`]
+      args: ['--processStart', `"CommandExecutor"`]
     })
   } else {
     // Para Linux, necesitarás implementar una solución personalizada
@@ -127,7 +128,7 @@ function createTray() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.example.commandexecutor')
 
   // Establecer el icono de la aplicación para Windows
   if (process.platform === 'win32') {

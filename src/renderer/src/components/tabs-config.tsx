@@ -5,7 +5,7 @@ import General from './tabs-config/general'
 
 export default function TabsConf({ setOpen }: { setOpen: (open: boolean) => void }) {
   return (
-    <Tabs defaultValue="account" className=" flex flex-col md:flex-row w-full h-full gap-2">
+    <Tabs defaultValue="general" className=" flex flex-col md:flex-row w-full h-full gap-2">
       <TabsList className=" flex md:flex-col h-full bg-transparent md:justify-start items-start">
         <TabsTrigger className=" w-full md:justify-start" value="general">
           General

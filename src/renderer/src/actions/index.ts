@@ -51,6 +51,7 @@ interface SessionData {
   Session: boolean
   id: string
   deviceId: string
+  expiresAt: number
 }
 
 export function getSession(): SessionData | null {
@@ -72,14 +73,14 @@ export function setSession({
   userId: string
   deviceId: string
 }) {
-  localStorage.setItem(
-    'Session',
-    JSON.stringify({
-      Session: sessionStatus,
-      id: encrypt({ text: userId, action: 'encrypt' }),
-      deviceId: deviceId
-    })
-  )
+  const expirationTime = new Date().getTime() + 31 * 24 * 60 * 60 * 1000 // 31 días
+  const sessionData = {
+    Session: sessionStatus,
+    id: encrypt({ text: userId, action: 'encrypt' }),
+    deviceId: deviceId,
+    expiresAt: expirationTime
+  }
+  localStorage.setItem('Session', JSON.stringify(sessionData))
 }
 
 export function removeSession() {
@@ -137,4 +138,28 @@ export async function getDevicesByUser({ userId }: { userId: string }) {
     .select('*')
     .eq('user_id', userId)
   return { devices, errorDevices }
+}
+
+export async function refreshSession() {
+  const session = getSession()
+  if (session) {
+    const currentTime = new Date().getTime()
+    if (currentTime > session.expiresAt) {
+      // La sesión ha expirado, intentemos renovarla
+      const { data, error } = await supabase.auth.getSession()
+      if (error || !data.session) {
+        removeSession()
+        return false
+      }
+      // Renovar la sesión
+      setSession({
+        sessionStatus: true,
+        userId: data.session.user.id,
+        deviceId: session.deviceId
+      })
+      return true
+    }
+    return true
+  }
+  return false
 }
