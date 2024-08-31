@@ -98,6 +98,7 @@ export default function FormLogin() {
       if (getDeviceInfo) {
         toast({ title: 'Warning', description: 'Device already registered' })
         setSession({ sessionStatus: true, userId: result.user_id, deviceId: getDeviceInfo.id })
+        await deleteToken({ token: data.token })
         navigation('/')
         return
       }
@@ -118,6 +119,7 @@ export default function FormLogin() {
       }
 
       setSession({ sessionStatus: true, userId: result.user_id, deviceId: deviceInsert?.id ?? '' })
+      await deleteToken({ token: data.token })
       navigation('/')
     }
 

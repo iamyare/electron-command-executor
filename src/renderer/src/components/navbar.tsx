@@ -2,7 +2,8 @@ import ButtonGhost from '@renderer/components/ui/button-ghost'
 import { TooltipProvider } from '@renderer/components/ui/tooltip'
 import { removeSession } from '@renderer/actions'
 import { useNavigate } from 'react-router-dom'
-import { LogOutIcon, Settings, Minus } from 'lucide-react'
+import { LogOutIcon, Minus } from 'lucide-react'
+import ModalConfig from './modal-config'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -19,11 +20,7 @@ export default function Navbar() {
     <header id="titlebar" className="fixed top-0 left-0 w-screen p-4">
       <TooltipProvider delayDuration={300}>
         <ButtonGhost icon={LogOutIcon} tooltip="Cerrar Sesion" onClick={handleClearSession} />
-        <ButtonGhost
-          icon={Settings}
-          tooltip="Configuracion"
-          onClick={() => console.log('Abre modal config')}
-        />
+        <ModalConfig />
         <ButtonGhost
           icon={Minus}
           tooltip="Minimizar"

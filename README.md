@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Command Executor es una potente aplicación de escritorio diseñada para ejecutar comandos de terminal personalizados en diferentes sistemas operativos. Funciona como el ejecutor local de los comandos gestionados a través de la aplicación web complementaria.
+Command Executor es una potente aplicación de escritorio diseñada para ejecutar comandos de terminal personalizados en diferentes sistemas operativos, de forma remota. Funciona como el ejecutor local de los comandos gestionados a través de la aplicación web complementaria.
 
 ## Características Principales
 
